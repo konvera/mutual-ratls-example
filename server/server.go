@@ -6,6 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	ratls_wrapper "github.com/konvera/gramine-ratls-golang"
+	mutual_ratls "github.com/konvera/mutual-ratls-example"
 )
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,38 +21,16 @@ func main() {
 	http.HandleFunc("/hello", helloHandler)
 
 	// Read the key pair to create certificate
-	der_cert, err := LoadX509KeyPairDER("tls/tlscert.der", "tls/tlskey.der")
+	der_cert, err := mutual_ratls.LoadX509KeyPairDER("tls/tlscert.der", "tls/tlskey.der")
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	/*
-	// Create a CA certificate pool and add cert.pem to it
-	caCert, err := x509.ParseCertificate(der_cert.Certificate[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AddCert(caCert)
-	*/
 
 	// Create the TLS Config with the CA pool and enable Client certificate validation
 	tlsConfig := &tls.Config{
 		ClientAuth: tls.RequireAnyClientCert,
 		VerifyConnection: func(cs tls.ConnectionState) error {
-			/*
-			opts := x509.VerifyOptions{
-				//DNSName:       cs.ServerName,
-				Intermediates: x509.NewCertPool(),
-				KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-				Roots: caCertPool,
-			}
-			for _, cert := range cs.PeerCertificates[1:] {
-				opts.Intermediates.AddCert(cert)
-			}
-			_, err := cs.PeerCertificates[0].Verify(opts)
-			*/
-			err = ra_tls_verify(cs.PeerCertificates[0].Raw)
+			err = ratls_wrapper.RATLSVerifyDer(cs.PeerCertificates[0].Raw, nil, nil, nil, nil)
 			return err
 		},
 	}
@@ -62,6 +43,5 @@ func main() {
 	}
 
 	// Listen to HTTPS connections with the server certificate and wait
-	log.Fatal(ListenAndServeTLS(server, der_cert))
+	log.Fatal(mutual_ratls.ListenAndServeTLS(server, der_cert))
 }
-

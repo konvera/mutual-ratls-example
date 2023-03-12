@@ -1,4 +1,4 @@
-# Client manifest
+# Server manifest
 
 ################################## GRAMINE ####################################
 
@@ -7,7 +7,6 @@
 loader.entrypoint = "file:{{ gramine.libos }}"
 
 # Entrypoint binary which Gramine invokes.
-# libos.entrypoint = "{{ entrypoint }}"
 libos.entrypoint = "{{ execdir }}/bash"
 
 # Verbosity of Gramine debug log (none/error/warning/debug/trace/all). Note
@@ -22,16 +21,14 @@ loader.log_level = "{{ log_level }}"
 # applies. Paths must be in-Gramine visible paths, not host paths (i.e.,
 # paths must be taken from fs.mounts[...].path, not fs.mounts[...].uri).
 loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/lib:/usr/{{ arch_libdir }}"
-loader.env.CLIENT_BIN = "{{ client_bin }}"
+loader.env.SERVER_BIN = "{{ server_bin }}"
 loader.env.RATLS_CRT_PATH = "{{ ratls_crt_path }}"
 loader.env.RATLS_KEY_PATH = "{{ ratls_key_path }}"
-
-loader.argv_src_file = "file:geth.args"
 
 ################################## SIGNALS ####################################
 
 # Allow for injecting SIGTERM signal from the host. Without this option,
-# pressing `Ctrl + C` wouldn't terminate Geth.
+# pressing `Ctrl + C` wouldn't terminate Server.
 sys.enable_sigterm_injection = true
 
 ################################# MOUNT FS ####################################
@@ -48,7 +45,7 @@ fs.mounts = [
   # Mount on-host directory to Gramine glibc/runtime libraries (in 'uri') into
   # in-Gramine visible directory /lib (in 'path').
   { path = "/lib", uri = "file:{{ gramine.runtimedir() }}" },
-
+  { path = "{{ execdir }}", uri = "file:{{ execdir }}" },
   { path = "{{ arch_libdir }}", uri = "file:{{ arch_libdir }}" },
   { path = "/usr", uri = "file:/usr" },
   { path = "/etc", uri = "file:/etc" },
@@ -74,7 +71,7 @@ sgx.isvsvn    = {{ isvsvn }}
 
 ############################# SGX: TRUSTED FILES ###############################
 
-# Specify all files used by Geth and its dependencies (including all libraries
+# Specify all files used by Server and its dependencies (including all libraries
 # which can be loaded at runtime via dlopen), as well as other static read-only
 # files (like configuration files).
 #
@@ -95,12 +92,12 @@ sgx.isvsvn    = {{ isvsvn }}
 
 sgx.trusted_files = [
   "file:{{ gramine.libos }}",
-  "file:{{ client_bin }}",
+  "file:{{ execdir }}/",
+  "file:{{ server_bin }}",
   "file:{{ ratls_crt_path }}",
   "file:{{ ratls_key_path }}",
   "file:{{ gramine.runtimedir() }}/",
   "file:{{ arch_libdir }}/",
-  "file:geth.args",
   "file:/usr/{{ arch_libdir }}/",
   "file:/etc/ssl/certs/ca-certificates.crt",
 ]

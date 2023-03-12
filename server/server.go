@@ -2,6 +2,8 @@ package main
 
 import (
 	"crypto/tls"
+	"os"
+
 	//"crypto/x509"
 	"io"
 	"log"
@@ -21,7 +23,15 @@ func main() {
 	http.HandleFunc("/hello", helloHandler)
 
 	// Read the key pair to create certificate
-	der_cert, err := mutual_ratls.LoadX509KeyPairDER("tls/tlscert.der", "tls/tlskey.der")
+	tlsCrtPath := os.Getenv("RATLS_CERT_PATH")
+	tlsKeyPath := os.Getenv("RATLS_KEY_PATH")
+
+	if tlsCrtPath == "" || tlsKeyPath == "" {
+		panic("invalid TLS certificate or key")
+	}
+
+	// Read the key pair to create certificate
+	der_cert, err := mutual_ratls.LoadX509KeyPairDER(tlsCrtPath, tlsKeyPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +44,6 @@ func main() {
 			return err
 		},
 	}
-	tlsConfig.BuildNameToCertificate()
 
 	// Create a Server instance to listen on port 8443 with the TLS config
 	server := &http.Server{

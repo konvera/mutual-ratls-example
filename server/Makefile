@@ -29,7 +29,7 @@ endif
 
 # Build server
 server:
-	go build -o server server/server.go
+	go build -o server server.go
 
 ################################ server MANIFEST ###############################
 
@@ -46,7 +46,7 @@ server.manifest: server.manifest.template
 	gramine-manifest \
 		-Dlog_level=$(GRAMINE_LOG_LEVEL) \
 		-Darch_libdir=$(ARCH_LIBDIR) \
-		-Dserver_bin="./server/server" \
+		-Dserver_bin="./server" \
 		-Dexecdir=$(shell dirname $(shell which bash)) \
 		-Dratls_crt_path="/home/ubuntu/mutual-ratls-example/tls/tlscert.der" \
 		-Dratls_key_path="/home/ubuntu/mutual-ratls-example/tls/tlskey.der" \

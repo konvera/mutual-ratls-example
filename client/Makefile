@@ -29,7 +29,7 @@ endif
 
 # Build Client
 client:
-	go build -o client client/client.go
+	go build -o client client.go
 
 ################################ CLIENT MANIFEST ###############################
 
@@ -46,7 +46,7 @@ client.manifest: client.manifest.template
 	gramine-manifest \
 		-Dlog_level=$(GRAMINE_LOG_LEVEL) \
 		-Darch_libdir=$(ARCH_LIBDIR) \
-		-Dclient_bin="./client/client" \
+		-Dclient_bin="./client" \
 		-Dexecdir=$(shell dirname $(shell which bash)) \
 		-Dratls_crt_path="/home/ubuntu/mutual-ratls-example/tls/tlscert.der" \
 		-Dratls_key_path="/home/ubuntu/mutual-ratls-example/tls/tlskey.der" \

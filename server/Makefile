@@ -38,7 +38,7 @@ server:
 # server.manifest (to be run under non-SGX Gramine) by replacing variables
 # in the template file using the "gramine-manifest" script.
 
-RA_TYPE		?= dcap
+RA_TYPE		?= none
 ISVPRODID	?= 0
 ISVSVN		?= 0
 
@@ -46,10 +46,9 @@ server.manifest: server.manifest.template
 	gramine-manifest \
 		-Dlog_level=$(GRAMINE_LOG_LEVEL) \
 		-Darch_libdir=$(ARCH_LIBDIR) \
-		-Dserver_bin="./server" \
-		-Dexecdir=$(shell dirname $(shell which bash)) \
-		-Dratls_crt_path="/home/ubuntu/mutual-ratls-example/tls/tlscert.der" \
-		-Dratls_key_path="/home/ubuntu/mutual-ratls-example/tls/tlskey.der" \
+		-Dserver_bin="server" \
+		-Dratls_file_path="/home/ubuntu/mutual-ratls-example/tls/" \
+		-Dratls_enclave_path="/tls" \
 		-Dra_type=$(RA_TYPE) \
 		-Disvprodid=$(ISVPRODID) \
 		-Disvsvn=$(ISVSVN) \
@@ -76,4 +75,7 @@ sgx_sign: server.manifest
 
 .PHONY: clean
 clean:
-	$(RM) *.manifest *.manifest.sgx *.sig *.args OUTPUT* *.PID TEST_STDOUT TEST_STDERR
+	$(RM) *.manifest *.manifest.sgx *.sig *.args OUTPUT* server
+
+.PHONY: distclean
+distclean: clean

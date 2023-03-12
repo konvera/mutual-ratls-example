@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"os"
+	"path"
 
 	//"crypto/x509"
 	"fmt"
@@ -16,15 +17,17 @@ import (
 )
 
 func main() {
-	// Read the key pair to create certificate
-	tlsCertPath := os.Getenv("RATLS_CERT_PATH")
-	tlsKeyPath := os.Getenv("RATLS_KEY_PATH")
+	log.Println("Client started...")
 
-	if tlsCertPath == "" || tlsKeyPath == "" {
+	// Read the key pair to create certificate
+	tlsFilePath := os.Getenv("RATLS_ENCLAVE_PATH")
+
+	if tlsFilePath == "" {
 		panic("invalid TLS certificate or key")
 	}
 
-	cert, err := mutual_ratls.LoadX509KeyPairDER(tlsCertPath, tlsKeyPath)
+	// Read the key pair to create certificate
+	cert, err := mutual_ratls.LoadX509KeyPairDER(path.Join(tlsFilePath, "tlscert.der"), path.Join(tlsFilePath, "tlskey.der"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,5 +60,5 @@ func main() {
 	}
 
 	// Print the response body to stdout
-	fmt.Printf("%s\n", body)
+	fmt.Printf("Response: %s\n", body)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"os"
+	"path"
 
 	//"crypto/x509"
 	"io"
@@ -23,15 +24,13 @@ func main() {
 	http.HandleFunc("/hello", helloHandler)
 
 	// Read the key pair to create certificate
-	tlsCrtPath := os.Getenv("RATLS_CERT_PATH")
-	tlsKeyPath := os.Getenv("RATLS_KEY_PATH")
-
-	if tlsCrtPath == "" || tlsKeyPath == "" {
+	tlsFilePath := os.Getenv("RATLS_ENCLAVE_PATH")
+	if tlsFilePath == "" {
 		panic("invalid TLS certificate or key")
 	}
 
 	// Read the key pair to create certificate
-	der_cert, err := mutual_ratls.LoadX509KeyPairDER(tlsCrtPath, tlsKeyPath)
+	der_cert, err := mutual_ratls.LoadX509KeyPairDER(path.Join(tlsFilePath, "tlscert.der"), path.Join(tlsFilePath, "tlskey.der"))
 	if err != nil {
 		log.Fatal(err)
 	}

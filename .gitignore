@@ -1,0 +1,7 @@
+# Binaries
+client/client
+server/server
+
+*.manifest
+*.manifest.sgx
+*.sig

@@ -1,13 +1,13 @@
-package main
+package mutual_ratls
 
 import (
 	"bytes"
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
-	"crypto/ecdsa"
-	"crypto/rsa"
-	"crypto/ed25519"
 	"errors"
 	"net"
 	"net/http"
@@ -93,7 +93,6 @@ func parsePrivateKey(der []byte) (crypto.PrivateKey, error) {
 
 	return nil, errors.New("tls: failed to parse private key")
 }
-
 
 func ListenAndServeTLS(srv *http.Server, cert tls.Certificate) error {
 	addr := srv.Addr

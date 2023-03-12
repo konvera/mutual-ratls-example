@@ -2,49 +2,44 @@ package main
 
 import (
 	"crypto/tls"
+	"os"
+	"path"
+
 	//"crypto/x509"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	ratls_wrapper "github.com/konvera/gramine-ratls-golang"
+
+	mutual_ratls "github.com/konvera/mutual-ratls-example"
 )
 
 func main() {
+	log.Println("Client started...")
+
 	// Read the key pair to create certificate
-	cert, err := LoadX509KeyPairDER("tls/tlscert.der", "tls/tlskey.der")
-	if err != nil {
-		log.Fatal(err)
+	tlsFilePath := os.Getenv("RATLS_ENCLAVE_PATH")
+
+	if tlsFilePath == "" {
+		panic("invalid TLS certificate or key")
 	}
 
-	/*
-	// Create a CA certificate pool and add cert.pem to it
-	caCert, err := x509.ParseCertificate(cert.Certificate[0])
+	// Read the key pair to create certificate
+	cert, err := mutual_ratls.LoadX509KeyPairDER(path.Join(tlsFilePath, "tlscert.der"), path.Join(tlsFilePath, "tlskey.der"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AddCert(caCert)
-	*/
 
 	// Create a HTTPS client and supply the created CA pool and certificate
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				Certificates: []tls.Certificate{cert},
+				Certificates:       []tls.Certificate{cert},
 				InsecureSkipVerify: true,
 				VerifyConnection: func(cs tls.ConnectionState) error {
-					/*
-					opts := x509.VerifyOptions{
-						//DNSName:       cs.ServerName,
-						Intermediates: x509.NewCertPool(),
-						Roots: caCertPool,
-					}
-					for _, cert := range cs.PeerCertificates[1:] {
-						opts.Intermediates.AddCert(cert)
-					}
-					_, err := cs.PeerCertificates[0].Verify(opts)
-					*/
-					err = ra_tls_verify(cs.PeerCertificates[0].Raw)
+					err = ratls_wrapper.RATLSVerifyDer(cs.PeerCertificates[0].Raw, nil, nil, nil, nil)
 					return err
 				},
 			},
@@ -65,6 +60,5 @@ func main() {
 	}
 
 	// Print the response body to stdout
-	fmt.Printf("%s\n", body)
+	fmt.Printf("Response: %s\n", body)
 }
-

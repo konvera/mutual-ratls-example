@@ -23,6 +23,7 @@ loader.log_level = "{{ log_level }}"
 loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/lib:/usr/{{ arch_libdir }}"
 loader.env.SERVER_BIN = "{{ server_bin }}"
 loader.env.RATLS_ENCLAVE_PATH = "{{ ratls_enclave_path }}"
+loader.env.RA_TLS_ALLOW_OUTDATED_TCB_INSECURE = {{ ratls_allow_outdated_tcb }}
 
 ################################## SIGNALS ####################################
 

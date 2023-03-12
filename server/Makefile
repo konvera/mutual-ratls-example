@@ -15,6 +15,8 @@ ARCH_LIBDIR ?= /lib/$(shell $(CC) -dumpmachine)
 
 ENCLAVE_SIZE ?= 8G
 
+ALLOW_OUTDATED_TCB ?= 1
+
 ifeq ($(DEBUG),1)
 GRAMINE_LOG_LEVEL = debug
 else
@@ -46,6 +48,7 @@ server.manifest: server.manifest.template
 	gramine-manifest \
 		-Dlog_level=$(GRAMINE_LOG_LEVEL) \
 		-Darch_libdir=$(ARCH_LIBDIR) \
+		-Dratls_allow_outdated_tcb=$(ALLOW_OUTDATED_TCB)
 		-Dserver_bin="server" \
 		-Dratls_file_path="/home/ubuntu/mutual-ratls-example/tls/" \
 		-Dratls_enclave_path="/tls" \

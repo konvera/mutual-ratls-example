@@ -22,7 +22,13 @@ func LoadX509KeyPairDER(certFile, keyFile string) (tls.Certificate, error) {
 	fail := func(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
 
 	certDER, err := os.ReadFile(certFile)
+	if err != nil {
+		return fail(err)
+	}
 	keyDER, err := os.ReadFile(keyFile)
+	if err != nil {
+		return fail(err)
+	}
 
 	var cert tls.Certificate
 

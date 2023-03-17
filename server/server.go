@@ -2,13 +2,11 @@ package main
 
 import (
 	"crypto/tls"
-	"os"
-	"path"
-
-	//"crypto/x509"
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path"
 
 	ratls_wrapper "github.com/konvera/gramine-ratls-golang"
 	mutual_ratls "github.com/konvera/mutual-ratls-example"
@@ -23,14 +21,28 @@ func main() {
 	// Set up a /hello resource handler
 	http.HandleFunc("/hello", helloHandler)
 
-	// Read the key pair to create certificate
-	tlsFilePath := os.Getenv("RATLS_ENCLAVE_PATH")
-	if tlsFilePath == "" {
-		panic("invalid TLS certificate or key")
+	tlsFilePath := os.Getenv("RATLS_FILE_PATH")
+	tlsCertPath := "tls/tlscert.der"
+	tlsKeyPath := "tls/tlskey.der"
+
+	if tlsFilePath != "" {
+		tlsCertPath = path.Join(tlsFilePath, "tlscert.der")
+		tlsKeyPath = path.Join(tlsFilePath, "tlskey.der")
+	}
+
+	// create TLS certificate and key
+	err := ratls_wrapper.LoadRATLSLibs()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	err = ratls_wrapper.RATLSCreateKeyAndCrtDer(tlsCertPath, tlsKeyPath)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	// Read the key pair to create certificate
-	der_cert, err := mutual_ratls.LoadX509KeyPairDER(path.Join(tlsFilePath, "tlscert.der"), path.Join(tlsFilePath, "tlskey.der"))
+	derCrt, err := mutual_ratls.LoadX509KeyPairDER(tlsCertPath, tlsKeyPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,5 +63,5 @@ func main() {
 	}
 
 	// Listen to HTTPS connections with the server certificate and wait
-	log.Fatal(mutual_ratls.ListenAndServeTLS(server, der_cert))
+	log.Fatal(mutual_ratls.ListenAndServeTLS(server, derCrt))
 }

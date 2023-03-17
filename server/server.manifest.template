@@ -21,9 +21,7 @@ loader.log_level = "{{ log_level }}"
 # applies. Paths must be in-Gramine visible paths, not host paths (i.e.,
 # paths must be taken from fs.mounts[...].path, not fs.mounts[...].uri).
 loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/lib:/usr/{{ arch_libdir }}"
-loader.env.SERVER_BIN = "{{ server_bin }}"
-loader.env.RATLS_ENCLAVE_PATH = "{{ ratls_enclave_path }}"
-loader.env.RA_TLS_ALLOW_OUTDATED_TCB_INSECURE = {{ ratls_allow_outdated_tcb }}
+loader.env.DEBUG = "1"
 
 ################################## SIGNALS ####################################
 
@@ -45,14 +43,10 @@ fs.mounts = [
   # Mount on-host directory to Gramine glibc/runtime libraries (in 'uri') into
   # in-Gramine visible directory /lib (in 'path').
   { path = "/lib", uri = "file:{{ gramine.runtimedir() }}" },
-  { path = "/{{ server_bin }}", uri = "file:{{ server_bin }}" },
-  { path = "{{ ratls_enclave_path }}", uri = "file:{{ ratls_file_path }}" },
   { path = "{{ arch_libdir }}", uri = "file:{{ arch_libdir }}" },
   { path = "/usr", uri = "file:/usr" },
   { path = "/etc", uri = "file:/etc" },
-  { type = "tmpfs", path = "/root/.ethereum" },
-  { path = "/root/.ethereum.synced", uri = "file:/root/.ethereum.synced" },
-  { type = "tmpfs", path = "/tmp" },
+  { path = "/{{ server_bin }}", uri = "file:{{ server_bin }}" },
 ]
 
 ############################### SGX: GENERAL ##################################
@@ -93,14 +87,13 @@ sgx.isvsvn    = {{ isvsvn }}
 
 sgx.trusted_files = [
   "file:{{ gramine.libos }}",
-  "file:{{ server_bin }}",
-  "file:{{ ratls_file_path }}",
   "file:{{ gramine.runtimedir() }}/",
   "file:{{ arch_libdir }}/",
   "file:/usr/lib/ssl/",
-  "file:/etc/sgx_default_qcnl.conf",
   "file:/usr/{{ arch_libdir }}/",
+  "file:/usr/lib/libdcap_quoteprov.so",
   "file:/etc/ssl/certs/ca-certificates.crt",
+  "file:{{ server_bin }}",
 ]
 
 sgx.allowed_files = [
@@ -110,5 +103,6 @@ sgx.allowed_files = [
   "file:/etc/ld.so.cache",
   "file:/etc/host.conf",
   "file:/etc/passwd",
-  "file:/root/.ethereum.synced",
+  "file:tls/tlskey.der",
+  "file:tls/tlscert.der",
 ]

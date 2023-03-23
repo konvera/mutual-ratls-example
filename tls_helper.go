@@ -15,21 +15,9 @@ import (
 	"time"
 )
 
-// X509KeyPair parses a public/private key pair from a pair of
-// PEM encoded data. On successful return, Certificate.Leaf will be nil because
-// the parsed form of the certificate is not retained.
-func LoadX509KeyPairDER(certFile, keyFile string) (tls.Certificate, error) {
-	fail := func(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
+func fail(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
 
-	certDER, err := os.ReadFile(certFile)
-	if err != nil {
-		return fail(err)
-	}
-	keyDER, err := os.ReadFile(keyFile)
-	if err != nil {
-		return fail(err)
-	}
-
+func X509KeyPairDER(keyDER, certDER []byte) (tls.Certificate, error) {
 	var cert tls.Certificate
 
 	cert.Certificate = append(cert.Certificate, certDER)
@@ -76,6 +64,22 @@ func LoadX509KeyPairDER(certFile, keyFile string) (tls.Certificate, error) {
 	}
 
 	return cert, nil
+}
+
+// X509KeyPair parses a public/private key pair from a pair of
+// PEM encoded data. On successful return, Certificate.Leaf will be nil because
+// the parsed form of the certificate is not retained.
+func LoadX509KeyPairDER(keyFile, certFile string) (tls.Certificate, error) {
+	certDER, err := os.ReadFile(certFile)
+	if err != nil {
+		return fail(err)
+	}
+	keyDER, err := os.ReadFile(keyFile)
+	if err != nil {
+		return fail(err)
+	}
+
+	return X509KeyPairDER(certDER, keyDER)
 }
 
 // Attempt to parse the given private key DER block. OpenSSL 0.9.8 generates

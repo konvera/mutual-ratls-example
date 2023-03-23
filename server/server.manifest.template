@@ -21,7 +21,12 @@ loader.log_level = "{{ log_level }}"
 # applies. Paths must be in-Gramine visible paths, not host paths (i.e.,
 # paths must be taken from fs.mounts[...].path, not fs.mounts[...].uri).
 loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/lib:/usr/{{ arch_libdir }}"
-loader.env.DEBUG = "1"
+
+loader.env.DEBUG = { passthrough = true }
+loader.env.MRENCLAVE = { passthrough = true }
+loader.env.MRSIGNER = { passthrough = true }
+loader.env.ISV_PROD_ID = "{{ isvprodid }}"
+loader.env.ISV_SVN = "{{ isvsvn }}"
 
 ################################## SIGNALS ####################################
 
@@ -103,6 +108,4 @@ sgx.allowed_files = [
   "file:/etc/ld.so.cache",
   "file:/etc/host.conf",
   "file:/etc/passwd",
-  "file:tls/tlskey.der",
-  "file:tls/tlscert.der",
 ]

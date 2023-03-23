@@ -13,7 +13,7 @@
 # overwrite this default like this: `ARCH_LIBDIR=/lib64 make`
 ARCH_LIBDIR ?= /lib/$(shell $(CC) -dumpmachine)
 
-ENCLAVE_SIZE ?= 8G
+ENCLAVE_SIZE ?= 1G
 
 ifeq ($(DEBUG),1)
 GRAMINE_LOG_LEVEL = debug

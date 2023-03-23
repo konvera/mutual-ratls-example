@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"path"
 
 	ratls_wrapper "github.com/konvera/gramine-ratls-golang"
 
@@ -17,31 +15,31 @@ import (
 func main() {
 	log.Println("Client started...")
 
-	tlsFilePath := os.Getenv("RATLS_FILE_PATH")
-	tlsCertPath := "tls/tlscert.der"
-	tlsKeyPath := "tls/tlskey.der"
-
-	if tlsFilePath != "" {
-		tlsCertPath = path.Join(tlsFilePath, "tlscert.der")
-		tlsKeyPath = path.Join(tlsFilePath, "tlskey.der")
-	}
-
 	// create TLS certificate and key
 	err := ratls_wrapper.LoadRATLSLibs()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	err = ratls_wrapper.RATLSCreateKeyAndCrtDer(tlsCertPath, tlsKeyPath)
+	derKey, derCert, err := ratls_wrapper.RATLSCreateKeyAndCrtDer()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
 	// Read the key pair to create certificate
-	cert, err := mutual_ratls.LoadX509KeyPairDER(tlsCertPath, tlsKeyPath)
+	cert, err := mutual_ratls.X509KeyPairDER(derKey, derCert)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	mrenclave := mutual_ratls.GetSGXEnvVar("MRENCLAVE")
+	if mrenclave == nil {
+		log.Fatal("required mrenclave for enclave measurement.")
+	}
+
+	mrsigner := mutual_ratls.GetSGXEnvVar("MRSIGNER")
+	isvProdID := mutual_ratls.GetSGXEnvVar("ISV_PROD_ID")
+	isvSVN := mutual_ratls.GetSGXEnvVar("ISV_SVN")
 
 	// Create a HTTPS client and supply the created CA pool and certificate
 	client := &http.Client{
@@ -50,7 +48,7 @@ func main() {
 				Certificates:       []tls.Certificate{cert},
 				InsecureSkipVerify: true,
 				VerifyConnection: func(cs tls.ConnectionState) error {
-					err = ratls_wrapper.RATLSVerifyDer(cs.PeerCertificates[0].Raw, nil, nil, nil, nil)
+					err = ratls_wrapper.RATLSVerifyDer(cs.PeerCertificates[0].Raw, mrenclave, mrsigner, isvProdID, isvSVN)
 					return err
 				},
 			},

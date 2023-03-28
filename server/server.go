@@ -36,10 +36,6 @@ func main() {
 	}
 
 	mrenclave := mutual_ratls.GetSGXEnvVar("MRENCLAVE")
-	if mrenclave == nil {
-		log.Fatal("required mrenclave for enclave measurement")
-	}
-
 	mrsigner := mutual_ratls.GetSGXEnvVar("MRSIGNER")
 	isvProdID := mutual_ratls.GetSGXEnvVar("ISV_PROD_ID")
 	isvSVN := mutual_ratls.GetSGXEnvVar("ISV_SVN")

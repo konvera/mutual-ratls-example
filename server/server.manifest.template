@@ -25,8 +25,8 @@ loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/lib:/usr/{{ arch_libdi
 loader.env.DEBUG = { passthrough = true }
 loader.env.MRENCLAVE = { passthrough = true }
 loader.env.MRSIGNER = { passthrough = true }
-loader.env.ISV_PROD_ID = "{{ isvprodid }}"
-loader.env.ISV_SVN = "{{ isvsvn }}"
+loader.env.ISV_PROD_ID = { passthrough = true }
+loader.env.ISV_SVN = { passthrough = true }
 
 ################################## SIGNALS ####################################
 

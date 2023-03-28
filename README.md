@@ -30,7 +30,7 @@ To change the amount of memory allocated to the enclave to 2 GB, run `make SGX=1
 
 ### Run the components
 
-`mrneclave` is required for SGX enclave measurement and should be provided as an enviornment variable for both `server` and `client` when running in SGX. Note that other enclave measurement arguments namely, `mrsigner`, `isv_prod_id`, `isv_svn` can be provided in a similar manner through environemnt variables and will be verified by `RATLSVerifyDer`.
+Enclave measurement arguments namely, `mrenclave` `mrsigner`, `isv_prod_id`, `isv_svn` can be provided through environemnt variables and will be verified by `RATLSVerifyDer`.
 
 Run server
 

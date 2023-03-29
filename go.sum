@@ -1,0 +1,6 @@
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/konvera/gramine-ratls-golang v0.0.0-20230321201813-0c936fa30834 h1:MK242hAFEtOp3JRxRQJZ9RBCWOwpWkB9gFC9QbFbPVc=
+github.com/konvera/gramine-ratls-golang v0.0.0-20230321201813-0c936fa30834/go.mod h1:yNZWvBeh/axoOP2pIn2oEjsIa21Ng8sIenVakc6RgFQ=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

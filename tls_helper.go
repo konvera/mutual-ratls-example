@@ -1,13 +1,13 @@
-package main
+package mutual_ratls
 
 import (
 	"bytes"
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
-	"crypto/ecdsa"
-	"crypto/rsa"
-	"crypto/ed25519"
 	"errors"
 	"net"
 	"net/http"
@@ -15,15 +15,9 @@ import (
 	"time"
 )
 
-// X509KeyPair parses a public/private key pair from a pair of
-// PEM encoded data. On successful return, Certificate.Leaf will be nil because
-// the parsed form of the certificate is not retained.
-func LoadX509KeyPairDER(certFile, keyFile string) (tls.Certificate, error) {
-	fail := func(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
+func fail(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
 
-	certDER, err := os.ReadFile(certFile)
-	keyDER, err := os.ReadFile(keyFile)
-
+func X509KeyPairDER(keyDER, certDER []byte) (tls.Certificate, error) {
 	var cert tls.Certificate
 
 	cert.Certificate = append(cert.Certificate, certDER)
@@ -72,6 +66,22 @@ func LoadX509KeyPairDER(certFile, keyFile string) (tls.Certificate, error) {
 	return cert, nil
 }
 
+// X509KeyPair parses a public/private key pair from a pair of
+// PEM encoded data. On successful return, Certificate.Leaf will be nil because
+// the parsed form of the certificate is not retained.
+func LoadX509KeyPairDER(keyFile, certFile string) (tls.Certificate, error) {
+	certDER, err := os.ReadFile(certFile)
+	if err != nil {
+		return fail(err)
+	}
+	keyDER, err := os.ReadFile(keyFile)
+	if err != nil {
+		return fail(err)
+	}
+
+	return X509KeyPairDER(certDER, keyDER)
+}
+
 // Attempt to parse the given private key DER block. OpenSSL 0.9.8 generates
 // PKCS #1 private keys by default, while OpenSSL 1.0.0 generates PKCS #8 keys.
 // OpenSSL ecparam generates SEC1 EC private keys for ECDSA. We try all three.
@@ -93,7 +103,6 @@ func parsePrivateKey(der []byte) (crypto.PrivateKey, error) {
 
 	return nil, errors.New("tls: failed to parse private key")
 }
-
 
 func ListenAndServeTLS(srv *http.Server, cert tls.Certificate) error {
 	addr := srv.Addr
